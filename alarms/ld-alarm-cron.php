@@ -34,7 +34,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		// disk usage
 		$diskRaw = shell_exec("{$shellPath}/disk_partitions.sh");
 		$diskJSON = json_decode($diskRaw);
-		$messageText = "Daily [{$serverName}] Disk Usage Status per Mount";
+		$messageText = "[{$serverName}] Disk Usage Status per Mount";
 		$attachments = array();	
 		foreach ($diskJSON as $mount) {
 			$obj = new stdClass();

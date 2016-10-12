@@ -1,5 +1,4 @@
 #!/bin/bash
+ps -e | grep "apache2" | wc -l
 
-result=$(ps -e | grep "apache2" | wc -l)
 
-echo result
