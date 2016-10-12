@@ -21,16 +21,14 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 	// Report status
 	if ('report' == $behavior) {
+		// disk usage
 		$diskRaw = shell_exec("{$shellPath}/disk_partitions.sh");
 		$diskJSON = json_decode($diskRaw);
-	
-		$messageText = "Daily [{$serverName}] Disk Usage Status";
+		$messageText = "Daily [{$serverName}] Disk Usage Status per Mount";
 		$attachments = array();	
 		var_dump($diskJSON);
 		foreach ($diskJSON as $mount) {
 			$obj = new stdClass();
-			// $obj->fallback = "Disk Usage Status Report for {$serverName}";
-			// $obj->pretext = "Disk Usage Status Report for {$serverName}";
 			$obj->color = sprintf('#%06X', mt_rand(0, 0xFFFFFF)); //"#46569f";
 			$obj->title = $mount->file_system . '[' . $mount->mounted . ']';
 			$obj->fields = array();
@@ -51,6 +49,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		}
 		$attachmentTxt = json_encode($attachments);
 		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
+		
 	} 
 	// Check all alarms	
 	elseif ('monitor' == $behavior) {
