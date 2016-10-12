@@ -68,7 +68,6 @@ if (isset($argv[1]) && isset($argv[2])) {
 		$loadAvg = shell_exec("{$shellPath}/load_avg.sh");
 		$loadJSON = json_decode($loadAvg);
 		$cpuUtil = shell_exec("{$shellPath}/cpu_utilization.sh");
-		$cpuJSON = json_decode($cpuUtil);
 		$propName1 = '1_min_avg';
 		$propName5 = '5_min_avg';
 		$propName15 = '15_min_avg';
@@ -76,7 +75,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		// cpu intensive processes
 		$cpuRaw = shell_exec("{$shellPath}/cpu_intensive_processes.sh");
 		$cpuJSON = json_decode($cpuRaw);
-		$messageText = "[{$serverName}] CPU Current Load: {$cpuJSON}%\nCPU Average Load: {$loadJSON->{$propName1}}%[1 min avg] {$loadJSON->{$propName5}}%[5 min avg] {$loadJSON->{$propName15}}%[15 min avg]\nTop CPU Intensive Processes:";
+		$messageText = "[{$serverName}] CPU Current Load: {$cpuUtil}%\nCPU Average Load: {$loadJSON->{$propName1}}%[1 min avg] {$loadJSON->{$propName5}}%[5 min avg] {$loadJSON->{$propName15}}%[15 min avg]\nTop CPU Intensive Processes:";
 		$attachments = array();
 		$c = 0;
 		foreach ($cpuJSON as $proc) {
