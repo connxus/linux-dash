@@ -113,7 +113,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		$memInfo = shell_exec("{$shellPath}/memory_info.sh");
 		$memJSON = json_decode($memInfo);
 		$ramRaw = shell_exec("{$shellPath}/ram_intensive_processes.sh");
-		$ramJSON = json_decode($cpuRaw);
+		$ramJSON = json_decode($ramRaw);
 		$messageText = "[{$serverName}] RAM Current Utilization. Available: {$memJSON->MemAvailable}  Free: {$memJSON->MemFree} Total: {$memJSON->MemTotal}\nTop RAM Intensive Processes:";
 		$attachments = array();
 		$c = 0;
