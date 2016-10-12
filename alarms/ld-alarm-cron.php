@@ -21,6 +21,16 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 	// Report status
 	if ('report' == $behavior) {
+		// apache
+		$apacheCheck = shell_exec("{$shellPath}/apache_check.sh");
+		$messageText = $apacheCheck ? "[{$serverName}] Apache Operational :white_check_mark:" : "[{$serverName}] Apache Unavailable! :skull_and_crossbones::exclamation:";
+		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
+
+		// database
+		$dbCheck = shell_exec('php -f ' . dirname(__FILE__).'/db-connect-test.php');
+		$messageText = $dbCheck ? "[{$serverName}] Database Connection Operational :white_check_mark:" : "[{$serverName}] Database Connection Unavailable! :skull_and_crossbones::exclamation:";
+		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
+
 		// disk usage
 		$diskRaw = shell_exec("{$shellPath}/disk_partitions.sh");
 		$diskJSON = json_decode($diskRaw);
@@ -47,11 +57,6 @@ if (isset($argv[1]) && isset($argv[2])) {
 		}
 		$attachmentTxt = json_encode($attachments);
 		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
-
-		// database connection
-		$dbCheck = shell_exec('php -f ' . dirname(__FILE__).'/db-connect-test.php');
-		$messageText = $dbCheck ? '[{$serverName}] Database Connection Operational :white_check_mark:' : '[{$serverName}] Database Connection Unavailable! :skull_and_crossbones::exclamation:';
-		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
 	} 
 	// Check all alarms	
 	elseif ('monitor' == $behavior) {
