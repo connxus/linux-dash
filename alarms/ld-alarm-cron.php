@@ -26,7 +26,6 @@ if (isset($argv[1]) && isset($argv[2])) {
 		$diskJSON = json_decode($diskRaw);
 		$messageText = "Daily [{$serverName}] Disk Usage Status per Mount";
 		$attachments = array();	
-		var_dump($diskJSON);
 		foreach ($diskJSON as $mount) {
 			$obj = new stdClass();
 			$obj->color = sprintf('#%06X', mt_rand(0, 0xFFFFFF)); //"#46569f";
@@ -44,12 +43,15 @@ if (isset($argv[1]) && isset($argv[2])) {
 			$obj->fields[1]->value = $mount->{$propName};
 			$obj->fields[1]->short = true;
 
-
 			$attachments[] = $obj;
 		}
 		$attachmentTxt = json_encode($attachments);
 		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
-		
+
+		// database connection
+		$dbCheck = shell_exec('php -f ' . dirname(__FILE__).'/db-connect-test.php');
+		$messageText = $dbCheck ? '[{$serverName}] Database Connection Operational :white_check_mark:' : '[{$serverName}] Database Connection Unavailable! :skull_and_crossbones::exclamation:';
+		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
 	} 
 	// Check all alarms	
 	elseif ('monitor' == $behavior) {
