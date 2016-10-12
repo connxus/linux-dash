@@ -40,11 +40,11 @@ if (isset($argv[1]) && isset($argv[2])) {
 			$obj->fields[0]->value = $mount->used . ' / ' . $mount->avail;
 			$obj->fields[0]->short = true;
 
-			$obj->fields[0] = new stdClass();
-			$obj->fields[0]->title = 'Used';
+			$obj->fields[1] = new stdClass();
+			$obj->fields[1]->title = 'Used';
 			$propName = 'used%';
-			$obj->fields[0]->value = $mount->{$propName};
-			$obj->fields[0]->short = true;
+			$obj->fields[1]->value = $mount->{$propName};
+			$obj->fields[1]->short = true;
 
 
 			$attachments[] = $obj;
