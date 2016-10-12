@@ -17,26 +17,26 @@ $shellPath = "/var/www/html/linux-dash/server/modules/shell_files";
 
 if (isset($argv[1]) && isset($argv[2])) {
 	$behavior = trim(strtolower($argv[1]));
-	$serverName = trim(strtolower($argv[1]));
+	$serverName = trim(strtolower($argv[2]));
 
 	// Report status
 	if ('report' == $behavior) {
 		$diskRaw = shell_exec("{$shellPath}/disk_partitions.sh");
 		$diskJSON = json_decode($diskRaw);
 	
-		$messageText = "[{$serverName}] Disk Usage Status";
+		$messageText = "Daily [{$serverName}] Disk Usage Status";
 		$attachments = array();	
 		var_dump($diskJSON);
 		foreach ($diskJSON as $mount) {
 			$obj = new stdClass();
-			$obj->fallback = "Disk Usage Status Report for {$serverName}";
-			$obj->pretext = "Disk Usage Status Report for {$serverName}";
-			$obj->color = "#46569f";
+			// $obj->fallback = "Disk Usage Status Report for {$serverName}";
+			// $obj->pretext = "Disk Usage Status Report for {$serverName}";
+			$obj->color = sprintf('#%06X', mt_rand(0, 0xFFFFFF)); //"#46569f";
 			$obj->title = $mount->file_system . '[' . $mount->mounted . ']';
 			$obj->fields = array();
 
 			$obj->fields[0] = new stdClass();
-			$obj->fields[0]->title = 'Used/Avail';
+			$obj->fields[0]->title = 'Stats';
 			$obj->fields[0]->value = $mount->used . ' / ' . $mount->avail;
 			$obj->fields[0]->short = true;
 
