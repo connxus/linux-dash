@@ -69,7 +69,10 @@ if (isset($argv[1]) && isset($argv[2])) {
 		$loadJSON = json_decode($loadAvg);
 		$cpuUtil = shell_exec("{$shellPath}/cpu_utilization.sh");
 		$cpuJSON = json_decode($cpuUtil);
-		$messageText = "[{$serverName}] CPU Current Load: {$cpuJSON}%\nCPU Average Load: {$loadJSON->1_min_avg}%[1 min avg] {$loadJSON->5_min_avg}%[5 min avg] {$loadJSON->15_min_avg}%[15 min avg]";
+		$propName1 = '1_min_avg';
+		$propName5 = '5_min_avg';
+		$propName15 = '15_min_avg';
+		$messageText = "[{$serverName}] CPU Current Load: {$cpuJSON}%\nCPU Average Load: {$loadJSON->{$propName1}}%[1 min avg] {$loadJSON->{$propName5}}%[5 min avg] {$loadJSON->{$propName15}}%[15 min avg]";
 		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
 
 		// cpu intensive processes
