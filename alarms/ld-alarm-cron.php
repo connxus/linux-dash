@@ -18,23 +18,26 @@ $shellPath = "/var/www/html/linux-dash/server/modules/shell_files";
 if (isset($argv[1]) && isset($argv[2])) {
 	$behavior = trim(strtolower($argv[1]));
 
-	// Check all alarms
-	if ('monitor' == $behavior) {
+	// Report status
+	if ('report' == $behavior) {
 		$messageText = 'Test.';
 		$diskRaw = shell_exec("{$shellPath}/disk_partitions.sh");
-		echo "\n{$diskRaw}\n";
+		echo "\n{$diskRaw}\n\n";
+		$diskJSON = json_decode($diskRaw);
 		// exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
-	}
-
-	// Report status
-	if ('monitor' == $behavior) {
-
+		var_dump($diskJSON);
+	} 
+	// Check all alarms	
+	elseif ('monitor' == $behavior) {
 		$messageText = 'Test.';
 		// exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
+	}
+	else {
+		echo "\nUsage: ld-alarm-cron.php (monitor|report) serverName\n\n";
 	}
 	
 } else {
-	echo "Usage: ld-alarm-cron.php (monitor|report) serverName";
+	echo "\nUsage: ld-alarm-cron.php (monitor|report) serverName\n\n";
 }
 
 
