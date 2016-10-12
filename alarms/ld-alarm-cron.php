@@ -112,8 +112,11 @@ if (isset($argv[1]) && isset($argv[2])) {
 		// ram intensive processes + mem utlization
 		$memInfo = shell_exec("{$shellPath}/memory_info.sh");
 		$memJSON = json_decode($memInfo);
-		$memAvail = round(preg_replace('[^0-9]','', $memJSON->MemAvailable) / 1024, 2);
-		$messageText = "[{$serverName}] RAM Current Utilization. Available: {$memAvail}  Free: {$memJSON->MemFree} Total: {$memJSON->MemTotal}\nTop RAM Intensive Processes:";
+		$memAvail = round(preg_replace('[^0-9]','', $memJSON->MemAvailable) / 1024);
+		$memFree = round(preg_replace('[^0-9]','', $memJSON->MemFree) / 1024);
+		$memTotal = round(preg_replace('[^0-9]','', $memJSON->MemTotal) / 1024);
+		$inUsePercent = round($memFree / $memTotal, 2);
+		$messageText = "[{$serverName}] RAM Current Utilization. Available: {$memAvail}MB  Free: {$memFree}MB Total: {$memTotal}MB InUse: {$inUsePercent}%\nTop RAM Intensive Processes:";
 		$ramRaw = shell_exec("{$shellPath}/ram_intensive_processes.sh");
 		$ramJSON = json_decode($ramRaw);
 		$attachments = array();
