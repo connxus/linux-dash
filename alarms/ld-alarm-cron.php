@@ -21,6 +21,12 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 	// Report status
 	if ('report' == $behavior) {
+		// message prefix
+		$genInfo = shell_exec("{$shellPath}/general_info.sh");
+		$genJSON = json_decode($genInfo);
+		$messageText = '[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {$genJSON->uptime}.';
+		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
+
 		// apache
 		$apacheCheck = shell_exec("{$shellPath}/apache_check.sh");
 		$messageText = $apacheCheck ? "[{$serverName}] Apache Operational :white_check_mark:" : "[{$serverName}] Apache Unavailable! :skull_and_crossbones::exclamation:";
@@ -57,6 +63,10 @@ if (isset($argv[1]) && isset($argv[2])) {
 		}
 		$attachmentTxt = json_encode($attachments);
 		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
+
+		// cpu usage
+
+
 	} 
 	// Check all alarms	
 	elseif ('monitor' == $behavior) {
