@@ -42,7 +42,8 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 			$obj->fields[0] = new stdClass();
 			$obj->fields[0]->title = 'Used';
-			$obj->fields[0]->value = $mount->used%;
+			$propName = 'used%';
+			$obj->fields[0]->value = $mount->{$propName};
 			$obj->fields[0]->short = true;
 
 
