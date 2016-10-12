@@ -32,17 +32,17 @@ if (isset($argv[1]) && isset($argv[2])) {
 			$obj->fallback = "Disk Usage Status Report for {$serverName}";
 			$obj->pretext = "Disk Usage Status Report for {$serverName}";
 			$obj->color = "#46569f";
-			$obj->title = $mount['file_system'] . '[' . $mount['mounted'] . ']';
+			$obj->title = $mount->file_system . '[' . $mount->mounted . ']';
 			$obj->fields = array();
 
 			$obj->fields[0] = new stdClass();
 			$obj->fields[0]->title = 'Used/Avail';
-			$obj->fields[0]->value = $mount['used'] . ' / ' . $mount['avail'];
+			$obj->fields[0]->value = $mount->used . ' / ' . $mount->avail;
 			$obj->fields[0]->short = true;
 
 			$obj->fields[0] = new stdClass();
 			$obj->fields[0]->title = 'Used';
-			$obj->fields[0]->value = $mount['used%'];
+			$obj->fields[0]->value = $mount->used%;
 			$obj->fields[0]->short = true;
 
 
