@@ -24,7 +24,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		// message prefix
 		$genInfo = shell_exec("{$shellPath}/general_info.sh");
 		$genJSON = json_decode($genInfo);
-		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {$genJSON->uptime}.";
+		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {$genJSON->Uptime}.";
 		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
 
 		// apache
@@ -40,7 +40,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		// disk usage
 		$diskRaw = shell_exec("{$shellPath}/disk_partitions.sh");
 		$diskJSON = json_decode($diskRaw);
-		$messageText = "[{$serverName}] Disk Usage Status per Mount";
+		$messageText = "[{$serverName}] Disk Usage Status per Mount:";
 		$attachments = array();	
 		foreach ($diskJSON as $mount) {
 			$obj = new stdClass();
@@ -72,13 +72,11 @@ if (isset($argv[1]) && isset($argv[2])) {
 		$propName1 = '1_min_avg';
 		$propName5 = '5_min_avg';
 		$propName15 = '15_min_avg';
-		$messageText = "[{$serverName}] CPU Current Load: {$cpuJSON}%\nCPU Average Load: {$loadJSON->{$propName1}}%[1 min avg] {$loadJSON->{$propName5}}%[5 min avg] {$loadJSON->{$propName15}}%[15 min avg]";
-		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
 
 		// cpu intensive processes
 		$cpuRaw = shell_exec("{$shellPath}/cpu_intensive_processes.sh");
 		$cpuJSON = json_decode($cpuRaw);
-		$messageText = "[{$serverName}] Top CPU Intensive Processes";
+		$messageText = "[{$serverName}] CPU Current Load: {$cpuJSON}%\nCPU Average Load: {$loadJSON->{$propName1}}%[1 min avg] {$loadJSON->{$propName5}}%[5 min avg] {$loadJSON->{$propName15}}%[15 min avg]\nTop CPU Intensive Processes:";
 		$attachments = array();
 		$c = 0;
 		foreach ($cpuJSON as $proc) {
@@ -113,6 +111,43 @@ if (isset($argv[1]) && isset($argv[2])) {
 		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
 
 		// ram intensive processes + mem utlization
+		$memInfo = shell_exec("{$shellPath}/memory_info.sh");
+		$memJSON = json_decode($memInfo);
+		$ramRaw = shell_exec("{$shellPath}/ram_intensive_processes.sh");
+		$ramJSON = json_decode($cpuRaw);
+		$messageText = "[{$serverName}] RAM Current Utilization. Available: {$memJSON->MemAvailable}  Free: {$memJSON->MemFree} Total: {$memJSON->MemTotal}\nTop RAM Intensive Processes:";
+		$attachments = array();
+		$c = 0;
+		foreach ($ramJSON as $proc) {
+			$obj = new stdClass();
+			$obj->color = sprintf('#%06X', mt_rand(0, 0xFFFFFF)); //"#46569f";
+			$obj->title = 'PID: ' . $proc->pid;
+			$obj->fields = array();
+
+			$obj->fields[0] = new stdClass();
+			$obj->fields[0]->title = 'User';
+			$obj->fields[0]->value = $proc->user;
+			$obj->fields[0]->short = true;
+
+			$obj->fields[1] = new stdClass();
+			$obj->fields[1]->title = 'MEM%';
+			$propName = 'mem%';
+			$obj->fields[1]->value = $proc->{$propName};
+			$obj->fields[1]->short = true;
+
+			$obj->fields[2] = new stdClass();
+			$obj->fields[2]->title = 'CMD';
+			$obj->fields[2]->value = $proc->cmd;
+			$obj->fields[2]->short = true;
+
+			$attachments[] = $obj;
+			$c++;
+			if ($c == 5) {
+				break;
+			}
+		}
+		$attachmentTxt = json_encode($attachments);
+		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
 
 	} 
 	// Check all alarms	
