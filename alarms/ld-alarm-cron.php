@@ -38,7 +38,8 @@ function postSlackMessage($messageText, $config, $attachments = array())
 
 	$attachmentPayload = '';
 	if (count($attachments)) {
-		$attachmentPayload = ", \"attachments\": {json_encode($attachments)}";
+		$attachmentTxt = json_encode($attachments);
+		$attachmentPayload = ", \"attachments\": {$attachmentTxt}";
 	}
 
 	exec("curl -X POST --data-urlencode 'payload={{$channelOverride}\"text\": \"{$messageText}\"{$attachmentPayload}}' {$config['SLACK_WEBHOOK_URL']}");
@@ -79,7 +80,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		foreach ($diskJSON as $mount) {
 			$usedPercent = (int) substr($mount->{$propName}, 0, (strlen($mount->{$propName}) - 1));
 			$obj = new stdClass();
-			$obj->color = $usedPercent >= $diskAlarmThreshold ? $config['HEX_COLOR_RED'] : $config['HEX_COLOR_GREEN'];
+			$obj->color = $usedPercent >= $config['ALARM_DISK_USAGE'] ? $config['HEX_COLOR_RED'] : $config['HEX_COLOR_GREEN'];
 			$obj->title = $mount->file_system . '[' . $mount->mounted . ']';
 			$obj->fields = array();
 
