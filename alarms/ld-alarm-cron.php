@@ -147,7 +147,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		$memFree = round(preg_replace('[^0-9]','', $memJSON->MemFree) / 1024);
 		$memTotal = round(preg_replace('[^0-9]','', $memJSON->MemTotal) / 1024);
 		$inUsePercent = 100 - (round($memFree / $memTotal, 2) * 100);
-		$messageText = "[{$serverName}] RAM Current Utilization. InUse: {$inUsePercent}% Available: {$memAvail}MB  Free: {$memFree}MB Total: {$memTotal}MB \nTop RAM Intensive Processes:";
+		$messageText = "[{$serverName}] RAM Current Utilization.\nInUse: {$inUsePercent}%\nAvailable: {$memAvail}MB\nFree: {$memFree}MB\nTotal: {$memTotal}MB\n\nTop RAM Intensive Processes:";
 		$ramJSON = runShellScript('MEM_PROCESSES', $scripts);
 		$attachments = array();
 		$c = 0;
@@ -184,8 +184,16 @@ if (isset($argv[1]) && isset($argv[2])) {
 	} 
 	// Check all alarms	
 	elseif ('monitor' == $behavior) {
-		$messageText = 'Test.';
-		// exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
+		// memory utilization
+
+		// cpu utilization
+
+		// disk usage
+
+		// apache
+
+		// database
+
 	}
 	else {
 		echo "\nUsage: ld-alarm-cron.php (monitor|report) serverName\n\n";

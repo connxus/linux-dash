@@ -9,7 +9,7 @@ $config = array(
 	// paths
 	'SLACK_WEBHOOK_URL' => 'https://hooks.slack.com/services/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',
 	'SHELL_PATH' => '/var/www/html/linux-dash/server/modules/shell_files',
-	'SLACK_CHANNEL_OVERRIDE' => '@dolphinface', // set to null to use default configured channel, only change for testing
+	'SLACK_CHANNEL_OVERRIDE' => null, // set to null to use default configured channel, only change for testing
 );
 
 $scripts = array(
