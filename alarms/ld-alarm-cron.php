@@ -29,13 +29,19 @@ function runShellScript($name, $scripts, $returnJson = true)
 	}
 }
 
-function postSlackMessage($messageText, $config) 
+function postSlackMessage($messageText, $config, $attachments = array()) 
 {
 	$channelOverride = '';
 	if (null != $config['SLACK_CHANNEL_OVERRIDE']) {
 		$channelOverride = "\"channel\": \"{$config['SLACK_CHANNEL_OVERRIDE']}\",";
 	}
-	exec("curl -X POST --data-urlencode 'payload={{$channelOverride}\"text\": \"{$messageText}\"}' {$config['SLACK_WEBHOOK_URL']}");
+
+	$attachmentPayload = '';
+	if (count($attachments)) {
+		$attachmentPayload = ", \"attachments\": {json_encode($attachments)}";
+	}
+
+	exec("curl -X POST --data-urlencode 'payload={{$channelOverride}\"text\": \"{$messageText}\"{$attachmentPayload}}' {$config['SLACK_WEBHOOK_URL']}");
 }
 
 
@@ -59,19 +65,17 @@ if (isset($argv[1]) && isset($argv[2])) {
 		echo "\n$apacheCheck\n";
 		$messageText = $apacheCheck ? "[{$serverName}] Apache Operational :white_check_mark:" : "[{$serverName}] Apache Unavailable! :skull_and_crossbones::exclamation:";
 		postSlackMessage($messageText, $config);
-/*
+
 		// database
 		$dbCheck = shell_exec('php -f ' . dirname(__FILE__).'/db-connect-test.php');
 		$messageText = $dbCheck ? "[{$serverName}] Database Connection Operational :white_check_mark:" : "[{$serverName}] Database Connection Unavailable! :skull_and_crossbones::exclamation:";
-		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
+		postSlackMessage($messageText, $config);
 
 		// disk usage
-		$diskRaw = shell_exec("{$shellPath}/disk_partitions.sh");
-		$diskJSON = json_decode($diskRaw);
+		$diskJSON = runShellScript('DISK_USAGE', $scripts);
 		$messageText = "[{$serverName}] Disk Usage Status per Mount:";
 		$attachments = array();	
 		$propName = 'used%';
-
 		foreach ($diskJSON as $mount) {
 			$usedPercent = (int) substr($mount->{$propName}, 0, (strlen($mount->{$propName}) - 1));
 			$obj = new stdClass();
@@ -91,9 +95,9 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 			$attachments[] = $obj;
 		}
-		$attachmentTxt = json_encode($attachments);
-		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
-
+		postSlackMessage($messageText, $config, $attachments);
+		
+/*
 		// cpu usage
 		$loadAvg = shell_exec("{$shellPath}/load_avg.sh");
 		$loadJSON = json_decode($loadAvg);

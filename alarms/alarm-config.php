@@ -15,4 +15,5 @@ $config = array(
 $scripts = array(
 	'GENERAL_INFO' => "{$config['SHELL_PATH']}/general_info.sh",
 	'APACHE' => "{$config['SHELL_PATH']}/apache_check.sh",
+	'DISK_USAGE' => "{$config['SHELL_PATH']}/disk_partitions.sh",
 );
