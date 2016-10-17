@@ -141,17 +141,14 @@ if (isset($argv[1]) && isset($argv[2])) {
 		}
 		postSlackMessage($messageText, $config, $attachments);
 
-/*
 		// ram intensive processes + mem utlization
-		$memInfo = shell_exec("{$shellPath}/memory_info.sh");
-		$memJSON = json_decode($memInfo);
+		$memJSON = runShellScript('MEM_INFO', $scripts);
 		$memAvail = round(preg_replace('[^0-9]','', $memJSON->MemAvailable) / 1024);
 		$memFree = round(preg_replace('[^0-9]','', $memJSON->MemFree) / 1024);
 		$memTotal = round(preg_replace('[^0-9]','', $memJSON->MemTotal) / 1024);
 		$inUsePercent = 100 - (round($memFree / $memTotal, 2) * 100);
 		$messageText = "[{$serverName}] RAM Current Utilization. InUse: {$inUsePercent}% Available: {$memAvail}MB  Free: {$memFree}MB Total: {$memTotal}MB \nTop RAM Intensive Processes:";
-		$ramRaw = shell_exec("{$shellPath}/ram_intensive_processes.sh");
-		$ramJSON = json_decode($ramRaw);
+		$ramJSON = runShellScript('MEM_PROCESSES', $scripts);
 		$attachments = array();
 		$c = 0;
 		foreach ($ramJSON as $proc) {
@@ -182,9 +179,8 @@ if (isset($argv[1]) && isset($argv[2])) {
 				break;
 			}
 		}
-		$attachmentTxt = json_encode($attachments);
-		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
-*/
+		postSlackMessage($messageText, $config, $attachments);
+
 	} 
 	// Check all alarms	
 	elseif ('monitor' == $behavior) {

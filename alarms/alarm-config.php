@@ -19,4 +19,6 @@ $scripts = array(
 	'CPU_LOAD_AVG' => "{$config['SHELL_PATH']}/load_avg.sh",
 	'CPU_LOAD' => "{$config['SHELL_PATH']}/cpu_utilization.sh",
 	'CPU_PROCESSES' => "{$config['SHELL_PATH']}/cpu_intensive_processes.sh",
+	'MEM_INFO' => "{$config['SHELL_PATH']}/memory_info.sh",
+	'MEM_PROCESSES' => "{$config['SHELL_PATH']}/ram_intensive_processes.sh",
 );
