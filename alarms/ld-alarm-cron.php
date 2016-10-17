@@ -51,14 +51,14 @@ if (isset($argv[1]) && isset($argv[2])) {
 	if ('report' == $behavior) {
 		// message prefix
 		$generalInfoJson = runShellScript('GENERAL_INFO', $scripts);
-		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {$generalInfoJson->Uptime}.";
+		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {trim($generalInfoJson->Uptime)}.";
+		postSlackMessage($messageText, $config);
+
+		// apache
+		$apacheCheck = runShellScript('APACHE', $scripts, false);
+		$messageText = $apacheCheck ? "[{$serverName}] Apache Operational :white_check_mark:" : "[{$serverName}] Apache Unavailable! :skull_and_crossbones::exclamation:";
 		postSlackMessage($messageText, $config);
 /*
-		// apache
-		$apacheCheck = shell_exec("{$shellPath}/apache_check.sh");
-		$messageText = $apacheCheck ? "[{$serverName}] Apache Operational :white_check_mark:" : "[{$serverName}] Apache Unavailable! :skull_and_crossbones::exclamation:";
-		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
-
 		// database
 		$dbCheck = shell_exec('php -f ' . dirname(__FILE__).'/db-connect-test.php');
 		$messageText = $dbCheck ? "[{$serverName}] Database Connection Operational :white_check_mark:" : "[{$serverName}] Database Connection Unavailable! :skull_and_crossbones::exclamation:";

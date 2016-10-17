@@ -14,4 +14,5 @@ $config = array(
 
 $scripts = array(
 	'GENERAL_INFO' => "{$config['SHELL_PATH']}/general_info.sh",
+	'APACHE' => "{$config['SHELL_PATH']}/apache_check.sh",
 );
