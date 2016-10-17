@@ -17,7 +17,7 @@ The behavior argument accepts two values:
 require(dirname(__FILE__).'/alarm-config.php');
 
 
-function runShellScript($name, $returnJson = true) 
+function runShellScript($name, $scripts, $returnJson = true) 
 {
 	if (isset($scripts[$name])) {
 		$output = shell_exec($scripts[$name]);
@@ -29,7 +29,7 @@ function runShellScript($name, $returnJson = true)
 	}
 }
 
-function postSlackMessage($messageText) 
+function postSlackMessage($messageText, $config) 
 {
 	$channelOverride = '';
 	if (null != $config['SLACK_CHANNEL_OVERRIDE']) {
@@ -50,9 +50,9 @@ if (isset($argv[1]) && isset($argv[2])) {
 	// Report status
 	if ('report' == $behavior) {
 		// message prefix
-		$generalInfoJson = runShellScript('GENERAL_INFO');
+		$generalInfoJson = runShellScript('GENERAL_INFO', $scripts);
 		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {$generalInfoJson->Uptime}.";
-		postSlackMessage($messageText);
+		postSlackMessage($messageText, $config);
 /*
 		// apache
 		$apacheCheck = shell_exec("{$shellPath}/apache_check.sh");
