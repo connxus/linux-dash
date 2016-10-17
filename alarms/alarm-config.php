@@ -16,4 +16,7 @@ $scripts = array(
 	'GENERAL_INFO' => "{$config['SHELL_PATH']}/general_info.sh",
 	'APACHE' => "{$config['SHELL_PATH']}/apache_check.sh",
 	'DISK_USAGE' => "{$config['SHELL_PATH']}/disk_partitions.sh",
+	'CPU_LOAD_AVG' => "{$config['SHELL_PATH']}/load_avg.sh",
+	'CPU_LOAD' => "{$config['SHELL_PATH']}/cpu_utilization.sh",
+	'CPU_PROCESSES' => "{$config['SHELL_PATH']}/cpu_intensive_processes.sh",
 );

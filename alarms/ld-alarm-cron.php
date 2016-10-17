@@ -58,7 +58,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 	if ('report' == $behavior) {
 		// message prefix
 		$generalInfoJson = runShellScript('GENERAL_INFO', $scripts);
-		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {trim($generalInfoJson->Uptime)}.";
+		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for " . trim($generalInfoJson->Uptime);
 		postSlackMessage($messageText, $config);
 
 		// apache
@@ -98,18 +98,16 @@ if (isset($argv[1]) && isset($argv[2])) {
 		}
 		postSlackMessage($messageText, $config, $attachments);
 		
-/*
+
 		// cpu usage
-		$loadAvg = shell_exec("{$shellPath}/load_avg.sh");
-		$loadJSON = json_decode($loadAvg);
-		$cpuUtil = shell_exec("{$shellPath}/cpu_utilization.sh");
+		$loadJSON = runShellScript('CPU_LOAD_AVG', $scripts);
+		$cpuUtil = runShellScript('CPU_LOAD', $scripts, false);
 		$propName1 = '1_min_avg';
 		$propName5 = '5_min_avg';
 		$propName15 = '15_min_avg';
 
 		// cpu intensive processes
-		$cpuRaw = shell_exec("{$shellPath}/cpu_intensive_processes.sh");
-		$cpuJSON = json_decode($cpuRaw);
+		$cpuJSON = runShellScript('CPU_PROCESSES', $scripts);
 		$messageText = "[{$serverName}] CPU Current Load: {$cpuUtil}%\nCPU Average Load: {$loadJSON->{$propName1}}%[1 min avg] {$loadJSON->{$propName5}}%[5 min avg] {$loadJSON->{$propName15}}%[15 min avg]\nTop CPU Intensive Processes:";
 		$attachments = array();
 		$c = 0;
@@ -141,9 +139,9 @@ if (isset($argv[1]) && isset($argv[2])) {
 				break;
 			}
 		}
-		$attachmentTxt = json_encode($attachments);
-		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
+		postSlackMessage($messageText, $config, $attachments);
 
+/*
 		// ram intensive processes + mem utlization
 		$memInfo = shell_exec("{$shellPath}/memory_info.sh");
 		$memJSON = json_decode($memInfo);
