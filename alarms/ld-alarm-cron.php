@@ -108,7 +108,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 		// cpu intensive processes
 		$cpuJSON = runShellScript('CPU_PROCESSES', $scripts);
-		$messageText = "[{$serverName}] CPU Current Load: {$cpuUtil}%\nCPU Average Load: {$loadJSON->{$propName1}}%[1 min avg] {$loadJSON->{$propName5}}%[5 min avg] {$loadJSON->{$propName15}}%[15 min avg]\nTop CPU Intensive Processes:";
+		$messageText = "[{$serverName}] CPU Current Load: {$cpuUtil}%\nCPU Average Load:\n{$loadJSON->{$propName1}}%[1 min avg]\n{$loadJSON->{$propName5}}%[5 min avg]\n{$loadJSON->{$propName15}}%[15 min avg]\n\nTop CPU Intensive Processes:";
 		$attachments = array();
 		$c = 0;
 		foreach ($cpuJSON as $proc) {
