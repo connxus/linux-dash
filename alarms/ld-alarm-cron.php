@@ -56,6 +56,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 		// apache
 		$apacheCheck = runShellScript('APACHE', $scripts, false);
+		echo "\n$apacheCheck\n";
 		$messageText = $apacheCheck ? "[{$serverName}] Apache Operational :white_check_mark:" : "[{$serverName}] Apache Unavailable! :skull_and_crossbones::exclamation:";
 		postSlackMessage($messageText, $config);
 /*
