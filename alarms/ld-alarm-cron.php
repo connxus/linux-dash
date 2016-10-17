@@ -12,21 +12,48 @@ The behavior argument accepts two values:
 "report" will send a status summary to #server-status slack channel.
 
 */
-$slackWebHookUrl = "https://hooks.slack.com/services/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";
-$shellPath = "/var/www/html/linux-dash/server/modules/shell_files";
+
+
+require(dirname(__FILE__).'/alarm-config.php');
+
+
+function runShellScript($name, $returnJson = true) 
+{
+	if (isset($scripts[$name])) {
+		$output = shell_exec($scripts[$name]);
+		if ($returnJson) {
+			return json_decode($output);
+		} else {
+			return $output;
+		}
+	}
+}
+
+function postSlackMessage($messageText) 
+{
+	$channelOverride = '';
+	if (null != $config['SLACK_CHANNEL_OVERRIDE']) {
+		$channelOverride = "\"channel\": \"{$config['SLACK_CHANNEL_OVERRIDE']}\",";
+	}
+	exec("curl -X POST --data-urlencode 'payload={{$channelOverride}\"text\": \"{$messageText}\"}' {$config['SLACK_WEBHOOK_URL']}");
+}
+
 
 if (isset($argv[1]) && isset($argv[2])) {
+	// set cli args to local variables
 	$behavior = trim(strtolower($argv[1]));
 	$serverName = trim(strtolower($argv[2]));
+
+	// behavior value determines behavior, monitor will check all alarms and report alarm conditions, report will dump full status report
+	// to the #_server-status channel.
 
 	// Report status
 	if ('report' == $behavior) {
 		// message prefix
-		$genInfo = shell_exec("{$shellPath}/general_info.sh");
-		$genJSON = json_decode($genInfo);
-		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {$genJSON->Uptime}.";
-		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\"}' {$slackWebHookUrl}");
-
+		$generalInfoJson = runShellScript('GENERAL_INFO');
+		$messageText = "[{$serverName}] Server Status Summary. <https://connxus.com/linux-dash|View Real-Time Status>. This server has been running for {$generalInfoJson->Uptime}.";
+		postSlackMessage($messageText);
+/*
 		// apache
 		$apacheCheck = shell_exec("{$shellPath}/apache_check.sh");
 		$messageText = $apacheCheck ? "[{$serverName}] Apache Operational :white_check_mark:" : "[{$serverName}] Apache Unavailable! :skull_and_crossbones::exclamation:";
@@ -42,9 +69,12 @@ if (isset($argv[1]) && isset($argv[2])) {
 		$diskJSON = json_decode($diskRaw);
 		$messageText = "[{$serverName}] Disk Usage Status per Mount:";
 		$attachments = array();	
+		$propName = 'used%';
+
 		foreach ($diskJSON as $mount) {
+			$usedPercent = (int) substr($mount->{$propName}, 0, (strlen($mount->{$propName}) - 1));
 			$obj = new stdClass();
-			$obj->color = sprintf('#%06X', mt_rand(0, 0xFFFFFF)); //"#46569f";
+			$obj->color = $usedPercent >= $diskAlarmThreshold ? $config['HEX_COLOR_RED'] : $config['HEX_COLOR_GREEN'];
 			$obj->title = $mount->file_system . '[' . $mount->mounted . ']';
 			$obj->fields = array();
 
@@ -55,7 +85,6 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 			$obj->fields[1] = new stdClass();
 			$obj->fields[1]->title = 'Used';
-			$propName = 'used%';
 			$obj->fields[1]->value = $mount->{$propName};
 			$obj->fields[1]->short = true;
 
@@ -116,7 +145,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		$memFree = round(preg_replace('[^0-9]','', $memJSON->MemFree) / 1024);
 		$memTotal = round(preg_replace('[^0-9]','', $memJSON->MemTotal) / 1024);
 		$inUsePercent = 100 - (round($memFree / $memTotal, 2) * 100);
-		$messageText = "[{$serverName}] RAM Current Utilization. Available: {$memAvail}MB  Free: {$memFree}MB Total: {$memTotal}MB InUse: {$inUsePercent}%\nTop RAM Intensive Processes:";
+		$messageText = "[{$serverName}] RAM Current Utilization. InUse: {$inUsePercent}% Available: {$memAvail}MB  Free: {$memFree}MB Total: {$memTotal}MB \nTop RAM Intensive Processes:";
 		$ramRaw = shell_exec("{$shellPath}/ram_intensive_processes.sh");
 		$ramJSON = json_decode($ramRaw);
 		$attachments = array();
@@ -151,7 +180,7 @@ if (isset($argv[1]) && isset($argv[2])) {
 		}
 		$attachmentTxt = json_encode($attachments);
 		exec("curl -X POST --data-urlencode 'payload={\"text\": \"{$messageText}\", \"attachments\": {$attachmentTxt}}' {$slackWebHookUrl}");
-
+*/
 	} 
 	// Check all alarms	
 	elseif ('monitor' == $behavior) {
