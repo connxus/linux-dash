@@ -63,7 +63,6 @@ if (isset($argv[1]) && isset($argv[2])) {
 
 		// apache
 		$apacheCheck = runShellScript('APACHE', $scripts, false);
-		echo "\n$apacheCheck\n";
 		$messageText = $apacheCheck ? "[{$serverName}] Apache Operational :white_check_mark:" : "[{$serverName}] Apache Unavailable! :skull_and_crossbones::exclamation:";
 		postSlackMessage($messageText, $config);
 
@@ -185,15 +184,41 @@ if (isset($argv[1]) && isset($argv[2])) {
 	// Check all alarms	
 	elseif ('monitor' == $behavior) {
 		// memory utilization
+		$memJSON = runShellScript('MEM_INFO', $scripts);
+		$memFree = round(preg_replace('[^0-9]','', $memJSON->MemFree) / 1024);
+		$memTotal = round(preg_replace('[^0-9]','', $memJSON->MemTotal) / 1024);
+		$inUsePercent = 100 - (round($memFree / $memTotal, 2) * 100);
+		if ($inUsePercent >= $config['ALARM_MEM_USAGE']) {
+			postSlackMessage("[{$serverName}] CRITICAL WARNING! MEMORY USAGE EXCEEDED WARNING THRESHOLD. MEMORY USAGE AT {$inUsePercent}%.", $config);
+		}
 
 		// cpu utilization
+		$cpuUtil = runShellScript('CPU_LOAD', $scripts, false);
+		if ($cpuUtil >= $config['ALARM_CPU_USAGE']) {
+			postSlackMessage("[{$serverName}] CRITICAL WARNING! CPU USAGE EXCEEDED WARNING THRESHOLD. CPU USAGE AT {$cpuUtil}%.", $config);
+		}
 
 		// disk usage
+		$diskJSON = runShellScript('DISK_USAGE', $scripts);
+		$propName = 'used%';
+		foreach ($diskJSON as $mount) {
+			$usedPercent = (int) substr($mount->{$propName}, 0, (strlen($mount->{$propName}) - 1));
+			if ($usedPercent >= $config['ALARM_DISK_USAGE']) {
+				postSlackMessage("[{$serverName}] [{$mount->file_system} ({$mount->mounted})] CRITICAL WARNING! DISK USAGE EXCEEDED WARNING THRESHOLD. USAGE AT {$usedPercent}%", $config);	
+			}
+		}
 
 		// apache
+		$apacheCheck = runShellScript('APACHE', $scripts, false);
+		if (!$apacheCheck) {
+			postSlackMessage("[{$serverName}] CRITICAL WARNING! APACHE IS NOT RUNNING.", $config);	
+		}
 
 		// database
-
+		$dbCheck = shell_exec('php -f ' . dirname(__FILE__).'/db-connect-test.php');
+		if (!$dbCheck) {
+			postSlackMessage("[{$serverName}] CRITICAL WARNING! MYSQL IS UNAVAILABLE.", $config);	
+		}
 	}
 	else {
 		echo "\nUsage: ld-alarm-cron.php (monitor|report) serverName\n\n";

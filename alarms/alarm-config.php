@@ -6,6 +6,8 @@ $config = array(
 	'HEX_COLOR_GREEN' => '#00FF00',
 	// alarm thresholds
 	'ALARM_DISK_USAGE' => 60,
+	'ALARM_MEM_USAGE' => 85,
+	'ALARM_CPU_USAGE' => 95,
 	// paths
 	'SLACK_WEBHOOK_URL' => 'https://hooks.slack.com/services/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',
 	'SHELL_PATH' => '/var/www/html/linux-dash/server/modules/shell_files',
